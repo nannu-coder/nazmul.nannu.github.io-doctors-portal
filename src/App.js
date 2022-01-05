@@ -9,36 +9,45 @@ import NavBar from './Components/Home/NavBar/NavBar';
 import Appointment from './Components/Appointment/Appointment/Appointment';
 import Login from './Components/Login/Login/Login';
 import Register from './Components/Login/Register/Register';
+import AuthProvider from './Context/AuthProvider/AuthProvider';
+import PrivateRoute from './Components/Login/PrivateRoute/PrivateRoute';
+import DashBoard from './Components/DashBoard/DashBoard/DashBoard';
 
 function App() {
   return (
     <div>
-      <Router>
-        <NavBar></NavBar>
-        <Switch>
+      <AuthProvider>
+        <Router>
+          <NavBar></NavBar>
+          <Switch>
 
-          <Route path='/home'>
-            <Home></Home>
-          </Route>
+            <Route path='/home'>
+              <Home></Home>
+            </Route>
 
-          <Route exact path='/'>
-            <Home></Home>
-          </Route>
+            <Route exact path='/'>
+              <Home></Home>
+            </Route>
 
-          <Route path='/appointment'>
-            <Appointment></Appointment>
-          </Route>
+            <PrivateRoute path='/appointment'>
+              <Appointment></Appointment>
+            </PrivateRoute>
 
-          <Route path='/login'>
-            <Login></Login>
-          </Route>
+            <PrivateRoute path='/dashboard'>
+              <DashBoard></DashBoard>
+            </PrivateRoute>
 
-          <Route path='/register'>
-            <Register></Register>
-          </Route>
+            <Route path='/login'>
+              <Login></Login>
+            </Route>
 
-        </Switch>
-      </Router>
+            <Route path='/register'>
+              <Register></Register>
+            </Route>
+
+          </Switch>
+        </Router>
+      </AuthProvider>
     </div>
   );
 }

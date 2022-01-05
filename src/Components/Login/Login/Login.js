@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import Grid from '@mui/material/Grid';
-import { Container, TextField, Typography, Button, Box } from '@mui/material';
+import { Container, TextField, Typography, Button, Box, CircularProgress, Alert } from '@mui/material';
 import login from '../../../images/login.png'
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useHistory } from 'react-router-dom';
+import UseAuth from '../../../Hooks/UseAuth';
 
 const Login = () => {
     const [fieldData, setFieldData] = useState({});
+    const { loginUser, isLoading, error, user, googleSignIn } = UseAuth();
+
+    const location = useLocation();
+    const history = useHistory();
 
     const handleLogin = e => {
         e.preventDefault();
@@ -17,6 +22,15 @@ const Login = () => {
         setFieldData(newFieldData)
     }
 
+    const handleSubmit = e => {
+        e.preventDefault();
+        loginUser(fieldData.email, fieldData.password, location, history)
+    }
+
+    const handleGoogleSignIn = () => {
+        googleSignIn(location, history)
+    }
+
     return (
         <Container>
             <Box>
@@ -25,7 +39,7 @@ const Login = () => {
                         <Typography style={{ marginTop: '150px' }} variant="body1" gutterBottom>
                             Login
                         </Typography>
-                        <form>
+                        {isLoading ? <CircularProgress /> : <form onSubmit={handleSubmit}>
                             <TextField
                                 sx={{ width: '75%', m: 1 }}
                                 id="standard-basic"
@@ -42,12 +56,16 @@ const Login = () => {
                                 onChange={handleLogin}
                                 type='password'
                                 variant="standard" />
-                            <Button sx={{ width: '75%', m: 1 }} variant='contained'>Login</Button>
+                            <Button type='submit' sx={{ width: '75%', m: 1 }} variant='contained'>Login</Button>
 
                             <Typography style={{ marginTop: '5px' }} variant="body2" gutterBottom>
                                 Don't Have an Account? <Link to='/register'>Please Register</Link>
                             </Typography>
-                        </form>
+                        </form>}
+                        <p>--------------------XXX--------------------</p>
+                        <Button onClick={handleGoogleSignIn} sx={{ width: '75%', m: 1 }} variant='contained'>Google SignUp</Button>
+                        {user.email && <Alert severity="success">Successfully login</Alert>}
+                        {error && <Alert severity="error">{error}</Alert>}
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <img style={{ width: '100%' }} src={login} alt="" />

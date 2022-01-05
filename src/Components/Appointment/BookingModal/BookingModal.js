@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
@@ -6,6 +6,7 @@ import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import { Button } from '@mui/material';
+import UseAuth from '../../../Hooks/UseAuth';
 
 const style = {
     position: 'absolute',
@@ -19,18 +20,40 @@ const style = {
     p: 4,
 };
 
-const BookingModal = ({ open, handleClose, booking, date }) => {
+const BookingModal = ({ open, handleClose, booking, date, setBookingSuccess }) => {
     const { name, time } = booking;
+    const { user } = UseAuth();
+    const initialInfo = { name: user.displayName, email: user.email, phone: '' }
+    const [bookingInfo, setBookingInfo] = useState(initialInfo);
+
+    const handleBooking = e => {
+        const field = e.target.name;
+        const value = e.target.value;
+        const newBookInfo = { ...bookingInfo }
+        newBookInfo[field] = value;
+        setBookingInfo(newBookInfo)
+    }
 
     const handleSubmit = e => {
         e.preventDefault();
 
+        const appointment = { ...bookingInfo, time, serviceName: name, date: date.toLocaleDateString() }
 
-
-
-        alert('success')
-        handleClose()
+        fetch('http://localhost:5000/appoinments', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(appointment)
+        }).then(res => res.json())
+            .then(data => {
+                if (data.insertedId) {
+                    setBookingSuccess(true)
+                    handleClose()
+                }
+            })
     }
+
 
     return (
         <Modal
@@ -61,19 +84,25 @@ const BookingModal = ({ open, handleClose, booking, date }) => {
                             <TextField
                                 sx={{ width: '95%', m: 1 }}
                                 id="outlined-size-small"
-                                defaultValue='Name'
+                                name="name"
+                                onBlur={handleBooking}
+                                defaultValue={user.displayName}
                                 size="small"
                             />
                             <TextField
                                 sx={{ width: '95%', m: 1 }}
                                 id="outlined-size-small"
+                                name="phone"
+                                onBlur={handleBooking}
                                 defaultValue='Phone Number'
                                 size="small"
                             />
                             <TextField
                                 sx={{ width: '95%', m: 1 }}
                                 id="outlined-size-small"
-                                defaultValue='Email'
+                                name="email"
+                                onBlur={handleBooking}
+                                defaultValue={user.email}
                                 size="small"
                             />
                             <TextField
